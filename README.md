@@ -1,29 +1,41 @@
 # CFN-step-by-step-go
 This is a go implementation of the [Writing an AWS CloudFormation Resource Provider in Python: Step by Step](https://www.cloudar.be/awsblog/writing-an-aws-cloudformation-resource-provider-in-python-step-by-step/), but translated to Go. I've not got the thing running far enough to tell if my translation is correct, but it compiles, which is the first step :-D
 
+## Installation
 Follow [Setting up your environment for developing extensions](https://docs.aws.amazon.com/cloudformation-cli/latest/userguide/what-is-cloudformation-cli.html#resource-type-setup) to setup your extension development environment.
 
-You should then be able to do a `make` followed by one of the several ways of running the output. 
 
-I am stuck at the `sam local invoke TestEntrypoint --event sam-tests/create.json` step:
+## Configuration
+Generate the requisite files:
+```
+cfn generate
+```
+
+Create an event thus (if necessary, export your AWS environment variables - either `AWS_PROFILE` or `AWS_ACCESS_KEY_ID/AWS_SECRET_KEY` - to setup the correct account access):
 
 ```
-(cfn-go) bash-5.0$ sam local invoke TestEntrypoint --event sam-tests/create.json
+./mybin/create_test_events.sh CREATE ./example_inputs/create.json >events/create.json
+```
+I am stuck at the `sam local invoke TestEntrypoint --event events/create.json` step:
+
+```
+(cfn-go) bash-5.0$ sam local invoke TestEntrypoint --event events/create.json 
 Invoking handler (go1.x)
-Failed to download a new amazon/aws-sam-cli-emulation-image-go1.x:rapid-1.0.0 image. Invoking with the already downloaded image.
-Mounting /Users/tobyferguson/Development/CFN-step-by-step-go/bin as /var/task:ro,delegated inside runtime container
-2021/02/25 21:45:58 Handler starting
-START RequestId: 39e6a5ec-2557-1956-f123-a2eb92eef0f3 Version: $LATEST
-Validation: Failed Validation
-caused by: Region: zero value, BearerToken: zero value: baseError
-null
-2021/02/25 21:45:58 Handler received the CREATE action
-END RequestId: 39e6a5ec-2557-1956-f123-a2eb92eef0f3
-REPORT RequestId: 39e6a5ec-2557-1956-f123-a2eb92eef0f3	Init Duration: 192.37 ms	Duration: 5.69 ms	Billed Duration: 100 ms	Memory Size: 256 MB	Max Memory Used: 24 MB	
+Skip pulling image and use local one: amazon/aws-sam-cli-emulation-image-go1.x:rapid-1.20.0.
 
-{"errorType":"baseError","errorMessage":"Validation: Failed Validation\ncaused by: Region: zero value, BearerToken: zero value"}
+Mounting /Users/tobyferguson/Development/CFN-step-by-step-go/bin/ as /var/task:ro,delegated inside runtime container
+START RequestId: 72d0544c-7286-4421-8f86-9ae6ced76b63 Version: $LATEST
+2021/03/09 04:17:39 Handler starting
+2021/03/09 04:17:39 Handler received the CREATE action
+Validation: Failed Validation
+caused by: BearerToken: zero value, Region: zero value: baseError
+null
+END RequestId: 72d0544c-7286-4421-8f86-9ae6ced76b63
+REPORT RequestId: 72d0544c-7286-4421-8f86-9ae6ced76b63	Init Duration: 0.37 ms	Duration: 191.97 ms	Billed Duration: 200 ms	Memory Size: 256 MB	Max Memory Used: 256 MB	
+{"errorMessage":"Validation: Failed Validation\ncaused by: BearerToken: zero value, Region: zero value","errorType":"baseError"}
 ```
 
+The zero valued BearerToken is completely unexpected. I've seen nothing about this in the SAM documentation regarding test events. 
 
 # MyCorp::EC2::Keypair
 

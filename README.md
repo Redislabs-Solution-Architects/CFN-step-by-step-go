@@ -5,7 +5,7 @@ Follow [Setting up your environment for developing extensions](https://docs.aws.
 
 You should then be able to do a `make` followed by one of the several ways of running the output. 
 
-I am stuck at the `sam local invoke TestEntrypoint --events sam-tests/create.json` step:
+I am stuck at the `sam local invoke TestEntrypoint --event sam-tests/create.json` step:
 
 ```
 (cfn-go) bash-5.0$ sam local invoke TestEntrypoint --event sam-tests/create.json
